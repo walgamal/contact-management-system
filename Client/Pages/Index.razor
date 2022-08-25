@@ -1,0 +1,55 @@
+﻿@page "/"
+@inject IContactService ContactService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Epitec CMS</PageTitle>
+
+<h1>Contacts</h1>
+<br />
+
+<button class="btn btn-secondary" @onclick="@CreateNewContact" style="margin:5px">Add Contact</button>
+<br />
+<br />
+
+<table class="table table-striped table-bordered">
+	<thead>
+		<tr>
+			<th scope="col">Last Name</th>
+			<th scope="col">First Name</th>
+			<th scope="col">Birth Date</th>
+			<th scope="col">Phone #</th>
+			<th scope="col">Action</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var contact in ContactService.Contacts)
+		{
+			<tr>
+				<td>@contact.lastName</td>
+				<td>@contact.firstName</td>
+				<td>@contact.birthDate</td>
+				<td>@contact.phoneNum</td>
+				<td>
+					<button class="btn btn-secondary" @onclick="(() => ShowContact(contact.Id))"><i class="oi oi-pencil">  Edit</i></button>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+@code {
+	protected override async Task OnInitializedAsync()
+	{
+		await ContactService.GetContacts();
+	}
+
+	void ShowContact(Guid id)
+	{
+		NavigationManager.NavigateTo($"contact/{id}");
+	}
+
+	void CreateNewContact()
+	{
+		NavigationManager.NavigateTo("/contact");
+	}
+}

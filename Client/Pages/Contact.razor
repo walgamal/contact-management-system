@@ -1,0 +1,74 @@
+﻿@page "/contact"
+@page "/contact/{id:guid}"
+@inject IContactService ContactService
+
+@if (Id == null)
+{
+	 <PageTitle>New Contact</PageTitle>
+	 <h3> New Contact</h3>
+}
+else
+{
+	<PageTitle>Edit Contact</PageTitle>
+	<h3> Editing @contact.firstName @contact.lastName</h3>
+}
+
+<EditForm Model="contact" OnValidSubmit="@HandleSubmit">
+	<div>
+		<DataAnnotationsValidator /> 
+		<ValidationSummary />
+		<label for="firstname">First Name</label>
+		<InputText id="firstname" @bind-Value="contact.firstName" class="form-control"></InputText>
+
+		<label for="lastname">Last Name</label>
+		<InputText id="lastname" @bind-Value="contact.lastName" class="form-control"></InputText>
+
+		<label for="phonenum">Phone Number</label>
+		<InputText id="phonenum" @bind-Value="contact.phoneNum" class="form-control"></InputText>
+		
+		<label for="birthdate">Birth Date</label>
+		<InputDate id="birthdate" @bind-Value="contact.birthDate" class="form-control"></InputDate>
+	</div>
+	<br />
+	<button type="submit" class="btn btn-primary">@btnText</button>
+	<button type="button" class="btn btn-danger" @onclick="DeleteContact">Delete Contact</button>
+</EditForm>
+
+@code {
+	[Parameter]
+	public Guid? Id { get; set; }
+
+	string btnText = string.Empty;
+
+	EpitecCMSApp.Shared.Contact contact = new EpitecCMSApp.Shared.Contact { };
+
+	protected override async Task OnInitializedAsync()
+	{
+		btnText = Id == null ? "Save New Contact" : "Update Contact";
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (Id != null)
+		{
+			contact = await ContactService.GetSingleContact((Guid)Id);
+		}
+	}
+
+	async Task HandleSubmit()
+	{
+		if(Id == null)
+		{
+			await ContactService.CreateContact(contact);
+		}
+		else
+		{
+			await ContactService.UpdateContact(contact);
+		}
+	}
+
+	async Task DeleteContact()
+	{
+		await ContactService.DeleteContact(contact.Id);
+	}
+}
